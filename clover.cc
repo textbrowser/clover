@@ -49,14 +49,14 @@ int main(int argc, char *argv[])
       {
 	i += 1;
 
-	if(argv[i])
+	if(i < argc && argv[i])
 	  fileNameIdx = i;
       }
     else if(argv[i] && strcmp(argv[i], "--output-size") == 0)
       {
 	i += 1;
 
-	if(argv[i])
+	if(i < argc && argv[i])
 	  {
 	    size_t value = std::strtol(argv[i], 0, 10);
 
