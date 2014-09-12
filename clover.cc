@@ -45,14 +45,14 @@ int main(int argc, char *argv[])
   int fileNameIdx = -1;
 
   for(int i = 0; i < argc; i++)
-    if(strcmp(argv[i], "--filename") == 0)
+    if(argv[i] && strcmp(argv[i], "--filename") == 0)
       {
 	i += 1;
 
 	if(argv[i])
 	  fileNameIdx = i;
       }
-    else if(strcmp(argv[i], "--output-size") == 0)
+    else if(argv[i] && strcmp(argv[i], "--output-size") == 0)
       {
 	i += 1;
 
