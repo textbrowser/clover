@@ -35,24 +35,55 @@ extern "C"
 #include <iostream>
 #include <limits>
 
-static const size_t OUTPUT_SIZE_IN_BYTES = 128;
+static size_t OUTPUT_SIZE_IN_BYTES = 128;
 
 int main(int argc, char *argv[])
 {
   if(argc <= 0 || !argv || !argv[1])
     return EXIT_FAILURE;
 
-  std::ifstream file(argv[1]);
+  int fileNameIdx = -1;
+
+  for(int i = 0; i < argc; i++)
+    if(strcmp(argv[i], "--filename") == 0)
+      {
+	i += 1;
+
+	if(argv[i])
+	  fileNameIdx = i;
+      }
+    else if(strcmp(argv[i], "--output-size") == 0)
+      {
+	i += 1;
+
+	if(argv[i])
+	  {
+	    size_t value = std::strtol(argv[i], 0, 10);
+
+	    if(value < 32 || value > 128)
+	      return EXIT_FAILURE;
+	    else
+	      OUTPUT_SIZE_IN_BYTES = value;
+	  }
+      }
+
+  if(fileNameIdx < 0)
+    return EXIT_FAILURE;
+
+  std::ifstream file(argv[fileNameIdx]);
 
   if(file.is_open())
     {
       char H[OUTPUT_SIZE_IN_BYTES];
-      char PI[] = "1415926535897932384626433832795028841971693"
-	"9937510582097494459230781640628620899862803482534211"
-	"706798214808651328230664709384460";
+      char PI[OUTPUT_SIZE_IN_BYTES];
       char buffer[OUTPUT_SIZE_IN_BYTES];
 
-      memcpy(H, PI, sizeof(H));
+      memcpy(PI,
+	     "141592653589793238462643383279502884197169399375"
+	     "105820974944592307816406286208998628034825342117"
+	     "06798214808651328230664709384460",
+	     std::min(sizeof(PI), 128UL));
+      memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
 
       while(true)
 	{
@@ -67,8 +98,8 @@ int main(int argc, char *argv[])
 	    memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
 
 	  char R[OUTPUT_SIZE_IN_BYTES];
-	  uint64_t a[16];
-	  uint64_t p[16];
+	  uint64_t a[OUTPUT_SIZE_IN_BYTES / 8];
+	  uint64_t p[OUTPUT_SIZE_IN_BYTES / 8];
 
 	  memset(R, 0, sizeof(R));
 	  memset(a, 0, sizeof(a));
@@ -80,10 +111,13 @@ int main(int argc, char *argv[])
 
 	      if((i + 1) % 8 == 0)
 		j += 1;
+
+	      if(j >= sizeof(a) / sizeof(a[0]))
+		break;
 	    }
 
 	  for(size_t h = 13; h <= 75; h += 13)
-	    for(size_t i = 0; i < 16; i++)
+	    for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
 	      {
 		long double b =
 		  (static_cast<long double> (a[i]) /
@@ -99,7 +133,7 @@ int main(int argc, char *argv[])
 		a[i] = p[i];
 	      }
 
-	  for(size_t i = 0; i < 16; i++)
+	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
 	    {
 	      R[i * 8 + 0] = static_cast<char> (p[i]);
 	      R[i * 8 + 1] = static_cast<char> ((p[i] >> 8) & 0xff);
