@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 	     "141592653589793238462643383279502884197169399375"
 	     "105820974944592307816406286208998628034825342117"
 	     "06798214808651328230664709384460",
-	     std::min(sizeof(PI), 128UL));
+	     std::min(sizeof(PI), static_cast<size_t> (128)));
       memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
 
       while(true)
