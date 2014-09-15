@@ -126,8 +126,8 @@ int main(int argc, char *argv[])
 		  cosl(static_cast<double> (h) * b) * cosl(b);
 		long double y0 = std::numeric_limits<uint64_t>::max() / 2 *
 		  cosl(static_cast<double> (h) * b) * sinl(b);
-		uint64_t x = std::llround(std::abs(std::ceil(x0)));
-		uint64_t y = std::llround(std::abs(std::ceil(y0)));
+		uint64_t x = std::llround(std::ceil(x0));
+		uint64_t y = std::llround(std::ceil(y0));
 
 		p[i] = x ^ y;
 		a[i] = p[i];
