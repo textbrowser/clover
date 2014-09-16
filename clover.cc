@@ -105,12 +105,17 @@ int main(int argc, char *argv[])
 	  memset(a, 0, sizeof(a));
 	  memset(p, 0, sizeof(p));
 
-	  for(size_t i = 0, j = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
+	  for(size_t i = 0, j = 0, k = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
 	    {
-	      a[j] |= static_cast<uint64_t> (buffer[i] & 0xff) << 8 * i;
+	      a[j] |= static_cast<uint64_t> (buffer[i] & 0xff) << 8 * k;
 
 	      if((i + 1) % 8 == 0)
-		j += 1;
+		{
+		  j += 1;
+		  k = 0;
+		}
+	      else
+		k += 1;
 
 	      if(j >= sizeof(a) / sizeof(a[0]))
 		break;
@@ -148,7 +153,7 @@ int main(int argc, char *argv[])
 	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
 	    for(size_t j = 0; j < OUTPUT_SIZE_IN_BYTES; j++)
 	      if(i != j)
-		H[i] ^= R[j];
+	    	H[i] ^= R[j];
 	}
 
       for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
