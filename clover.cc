@@ -122,21 +122,32 @@ int main(int argc, char *argv[])
 	    }
 
 	  for(size_t h = 13; h <= 75; h += 13)
-	    for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
-	      {
-		long double b =
-		  (static_cast<long double> (a[i]) /
-		   std::numeric_limits<uint64_t>::max()) * h * M_PI;
-		long double x0 = std::numeric_limits<uint64_t>::max() / 2 *
-		  cosl(static_cast<double> (h) * b) * cosl(b);
-		long double y0 = std::numeric_limits<uint64_t>::max() / 2 *
-		  cosl(static_cast<double> (h) * b) * sinl(b);
-		uint64_t x = std::llround(std::ceil(x0));
-		uint64_t y = std::llround(std::ceil(y0));
+	    {
+	      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
+		{
+		  long double b =
+		    (static_cast<long double> (a[i]) /
+		     std::numeric_limits<uint64_t>::max()) * h * M_PI;
+		  long double x0 = std::numeric_limits<uint64_t>::max() / 2 *
+		    cosl(static_cast<double> (h) * b) * cosl(b);
+		  long double y0 = std::numeric_limits<uint64_t>::max() / 2 *
+		    cosl(static_cast<double> (h) * b) * sinl(b);
+		  uint64_t x = std::llround(std::ceil(x0));
+		  uint64_t y = std::llround(std::ceil(y0));
 
-		p[i] = x ^ y;
-		a[i] = p[i];
-	      }
+		  p[i] = x ^ y;
+		  a[i] = p[i];
+		}
+
+	      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
+		for(size_t j = 0; j < OUTPUT_SIZE_IN_BYTES / 8; j++)
+		  {
+		    H[i] ^= static_cast<char> (a[j]);
+		    H[i] ^= static_cast<char> (a[j] << 11);
+		    H[i] ^= static_cast<char> (a[j] << 13);
+		    H[i] ^= static_cast<char> (a[j] << 17);
+		  }
+	    }
 
 	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
 	    {
@@ -151,9 +162,7 @@ int main(int argc, char *argv[])
 	    }
 
 	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
-	    for(size_t j = 0; j < OUTPUT_SIZE_IN_BYTES; j++)
-	      if(i != j)
-	    	H[i] ^= R[j];
+	    H[i] ^= R[i];
 	}
 
       for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
