@@ -1,3 +1,5 @@
+CXX = g++
+
 CXXFLAGS = -O3 \
 	   -Wall \
 	   -Wconversion \
@@ -9,8 +11,6 @@ CXXFLAGS = -O3 \
 	   -Wstrict-overflow=5 \
 	   -fPIC \
 	   -std=c++0x
-
-CXX = g++
 
 all:	clover.cc
 	$(CXX) $(CXXFLAGS) clover.cc -o clover
