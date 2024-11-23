@@ -41,7 +41,10 @@ static size_t OUTPUT_SIZE_IN_BYTES = 128;
 int main(int argc, char *argv[])
 {
   if(argc <= 0 || !argv || !argv[1])
-    return EXIT_FAILURE;
+    {
+      std::cerr << "clover: --filename file --output-size bytes" << std::endl;
+      return EXIT_FAILURE;
+    }
 
   int fileNameIdx = -1;
 
