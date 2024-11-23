@@ -31,6 +31,7 @@ extern "C"
 }
 
 #include <cmath>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
 
 	if(i < argc && argv[i])
 	  {
-	    size_t value = std::strtol(argv[i], 0, 10);
+	    auto const value = std::strtol(argv[i], 0, 10);
 
 	    if(value < 32 || value > 128)
 	      return EXIT_FAILURE;
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
 	{
 	  file.read(buffer, sizeof(buffer));
 
-	  size_t gcount = static_cast<size_t> (file.gcount());
+	  auto const gcount = static_cast<size_t> (file.gcount());
 
 	  if(gcount <= 0)
 	    break;
@@ -125,15 +126,15 @@ int main(int argc, char *argv[])
 	    {
 	      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
 		{
-		  long double b =
+		  auto const b =
 		    (static_cast<long double> (a[i]) /
 		     std::numeric_limits<uint64_t>::max()) * h * M_PI;
-		  long double x0 = std::numeric_limits<uint64_t>::max() / 2 *
+		  auto const x0 = std::numeric_limits<uint64_t>::max() / 2 *
 		    cosl(static_cast<double> (h) * b) * cosl(b);
-		  long double y0 = std::numeric_limits<uint64_t>::max() / 2 *
+		  auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
 		    cosl(static_cast<double> (h) * b) * sinl(b);
-		  uint64_t x = std::llround(std::ceil(x0));
-		  uint64_t y = std::llround(std::ceil(y0));
+		  auto const x = std::llround(std::ceil(x0));
+		  auto const y = std::llround(std::ceil(y0));
 
 		  p[i] = x ^ y;
 		  a[i] = p[i];
