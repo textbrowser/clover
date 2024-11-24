@@ -34,13 +34,14 @@
 #include <limits>
 
 auto const pi = std::acos(-1);
-static size_t OUTPUT_SIZE_IN_BYTES = 128;
+static size_t output_size_in_bytes = 128 / 2;
 
 int main(int argc, char *argv[])
 {
   if(argc <= 0 || argv == nullptr || argv[1] == nullptr)
     {
-      std::cerr << "clover: [--filename file] [--output-size bytes]"
+      std::cerr << "clover: [--filename file] "
+		<< "[--output-size 16, 32, ..., 1024]"
 		<< std::endl;
       return EXIT_FAILURE;
     }
@@ -65,10 +66,16 @@ int main(int argc, char *argv[])
 	  {
 	    auto const value = std::strtol(argv[i], 0, 10);
 
-	    if(value < 32 || value > 128)
-	      return EXIT_FAILURE;
+	    if(value == 16 ||
+	       value == 32 ||
+	       value == 64 ||
+	       value == 128 ||
+	       value == 256 ||
+	       value == 512 ||
+	       value == 1024)
+	      output_size_in_bytes = value / 2;
 	    else
-	      OUTPUT_SIZE_IN_BYTES = value;
+	      return EXIT_FAILURE;
 	  }
       }
 
@@ -79,15 +86,18 @@ int main(int argc, char *argv[])
 
   if(file.is_open())
     {
-      char H[OUTPUT_SIZE_IN_BYTES];
-      char PI[OUTPUT_SIZE_IN_BYTES];
-      char buffer[OUTPUT_SIZE_IN_BYTES];
+      char H[output_size_in_bytes];
+      char PI[output_size_in_bytes];
+      char R[output_size_in_bytes];
+      char buffer[output_size_in_bytes];
+      uint64_t a[output_size_in_bytes / 8];
+      uint64_t p[output_size_in_bytes / 8];
 
       std::memcpy(PI,
 		  "141592653589793238462643383279502884197169399375"
 		  "105820974944592307816406286208998628034825342117"
 		  "06798214808651328230664709384460",
-		  std::min(sizeof(PI), static_cast<size_t> (128)));
+		  std::min(sizeof(PI), static_cast<size_t> (1024 / 2)));
       std::memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
 
       while(true)
@@ -102,15 +112,11 @@ int main(int argc, char *argv[])
 	  if(gcount < sizeof(PI))
 	    std::memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
 
-	  char R[OUTPUT_SIZE_IN_BYTES];
-	  uint64_t a[OUTPUT_SIZE_IN_BYTES / 8];
-	  uint64_t p[OUTPUT_SIZE_IN_BYTES / 8];
-
 	  std::memset(R, 0, sizeof(R));
 	  std::memset(a, 0, sizeof(a));
 	  std::memset(p, 0, sizeof(p));
 
-	  for(size_t i = 0, j = 0, k = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
+	  for(size_t i = 0, j = 0, k = 0; i < output_size_in_bytes; i++)
 	    {
 	      a[j] |= static_cast<uint64_t> (buffer[i] & 0xff) << 8 * k;
 
@@ -128,24 +134,23 @@ int main(int argc, char *argv[])
 
 	  for(size_t h = 13; h <= 75; h += 13)
 	    {
-	      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
+	      for(size_t i = 0; i < output_size_in_bytes / 8; i++)
 		{
 		  auto const b =
 		    (static_cast<long double> (a[i]) /
 		     std::numeric_limits<uint64_t>::max()) * h * pi;
 		  auto const x0 = std::numeric_limits<uint64_t>::max() / 2 *
-		    cosl(static_cast<double> (h) * b) * cosl(b);
+		    cosl(b * static_cast<double> (h)) * cosl(b);
 		  auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
-		    cosl(static_cast<double> (h) * b) * sinl(b);
+		    cosl(b * static_cast<double> (h)) * sinl(b);
 		  auto const x = std::llround(std::ceil(x0));
 		  auto const y = std::llround(std::ceil(y0));
 
-		  p[i] = x ^ y;
-		  a[i] = p[i];
+		  a[i] = p[i] = x ^ y;
 		}
 
-	      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
-		for(size_t j = 0; j < OUTPUT_SIZE_IN_BYTES / 8; j++)
+	      for(size_t i = 0; i < output_size_in_bytes; i++)
+		for(size_t j = 0; j < output_size_in_bytes / 8; j++)
 		  {
 		    H[i] ^= static_cast<char> (a[j]);
 		    H[i] ^= static_cast<char> (a[j] << 11);
@@ -154,7 +159,7 @@ int main(int argc, char *argv[])
 		  }
 	    }
 
-	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES / 8; i++)
+	  for(size_t i = 0; i < output_size_in_bytes / 8; i++)
 	    {
 	      R[i * 8 + 0] = static_cast<char> (p[i]);
 	      R[i * 8 + 1] = static_cast<char> ((p[i] >> 8) & 0xff);
@@ -166,12 +171,15 @@ int main(int argc, char *argv[])
 	      R[i * 8 + 7] = static_cast<char> ((p[i] >> 56) & 0xff);
 	    }
 
-	  for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
+	  for(size_t i = 0; i < output_size_in_bytes; i++)
 	    H[i] ^= R[i];
 	}
 
-      for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
-	std::cout << std::hex << (H[i] & 0xff);
+      for(size_t i = 0; i < output_size_in_bytes; i++)
+	std::cout << std::hex
+		  << std::setfill('0')
+		  << std::setw(2)
+		  << (H[i] & 0xff);
 
       std::cout << std::endl;
     }
