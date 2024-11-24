@@ -10,7 +10,7 @@ CXXFLAGS = -O3 \
 	   -Wpointer-arith \
 	   -Wstrict-overflow=5 \
 	   -fPIC \
-	   -std=c++0x
+	   -std=c++11
 
 all:	clover.cc
 	$(CXX) $(CXXFLAGS) clover.cc -o clover

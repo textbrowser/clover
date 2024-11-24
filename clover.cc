@@ -25,38 +25,39 @@
 ** CLOVER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern "C"
-{
-#include <string.h>
-}
-
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 
+auto const pi = std::acos(-1);
 static size_t OUTPUT_SIZE_IN_BYTES = 128;
 
 int main(int argc, char *argv[])
 {
-  if(argc <= 0 || !argv || !argv[1])
+  if(argc <= 0 || argv == nullptr || argv[1] == nullptr)
     {
-      std::cerr << "clover: --filename file --output-size bytes" << std::endl;
+      std::cerr << "clover: [--filename file] [--output-size bytes]"
+		<< std::endl;
       return EXIT_FAILURE;
     }
 
-  int fileNameIdx = -1;
+  int fileNameIdx = 1;
 
   for(int i = 0; i < argc; i++)
-    if(argv[i] && strcmp(argv[i], "--filename") == 0)
+    if(argv[i] && std::strcmp(argv[i], "--filename") == 0)
       {
 	i += 1;
 
 	if(i < argc && argv[i])
 	  fileNameIdx = i;
+	else
+	  fileNameIdx = -1;
       }
-    else if(argv[i] && strcmp(argv[i], "--output-size") == 0)
+    else if(argv[i] && std::strcmp(argv[i], "--output-size") == 0)
       {
 	i += 1;
 
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
   if(fileNameIdx < 0)
     return EXIT_FAILURE;
 
-  std::ifstream file(argv[fileNameIdx]);
+  std::ifstream file(argv[fileNameIdx], std::ios::binary | std::ios::in);
 
   if(file.is_open())
     {
@@ -82,12 +83,12 @@ int main(int argc, char *argv[])
       char PI[OUTPUT_SIZE_IN_BYTES];
       char buffer[OUTPUT_SIZE_IN_BYTES];
 
-      memcpy(PI,
-	     "141592653589793238462643383279502884197169399375"
-	     "105820974944592307816406286208998628034825342117"
-	     "06798214808651328230664709384460",
-	     std::min(sizeof(PI), static_cast<size_t> (128)));
-      memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
+      std::memcpy(PI,
+		  "141592653589793238462643383279502884197169399375"
+		  "105820974944592307816406286208998628034825342117"
+		  "06798214808651328230664709384460",
+		  std::min(sizeof(PI), static_cast<size_t> (128)));
+      std::memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
 
       while(true)
 	{
@@ -99,15 +100,15 @@ int main(int argc, char *argv[])
 	    break;
 
 	  if(gcount < sizeof(PI))
-	    memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
+	    std::memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
 
 	  char R[OUTPUT_SIZE_IN_BYTES];
 	  uint64_t a[OUTPUT_SIZE_IN_BYTES / 8];
 	  uint64_t p[OUTPUT_SIZE_IN_BYTES / 8];
 
-	  memset(R, 0, sizeof(R));
-	  memset(a, 0, sizeof(a));
-	  memset(p, 0, sizeof(p));
+	  std::memset(R, 0, sizeof(R));
+	  std::memset(a, 0, sizeof(a));
+	  std::memset(p, 0, sizeof(p));
 
 	  for(size_t i = 0, j = 0, k = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
 	    {
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
 		{
 		  auto const b =
 		    (static_cast<long double> (a[i]) /
-		     std::numeric_limits<uint64_t>::max()) * h * M_PI;
+		     std::numeric_limits<uint64_t>::max()) * h * pi;
 		  auto const x0 = std::numeric_limits<uint64_t>::max() / 2 *
 		    cosl(static_cast<double> (h) * b) * cosl(b);
 		  auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
@@ -170,9 +171,17 @@ int main(int argc, char *argv[])
 	}
 
       for(size_t i = 0; i < OUTPUT_SIZE_IN_BYTES; i++)
-	printf("%02x", H[i] & 0xff);
+	std::cout << std::hex << (H[i] & 0xff);
 
       std::cout << std::endl;
+    }
+  else
+    {
+      std::cerr << "Cannot open file "
+		<< argv[fileNameIdx]
+		<< "."
+		<< std::endl;
+      return EXIT_FAILURE;
     }
 
   file.close();
