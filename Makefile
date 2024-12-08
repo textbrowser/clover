@@ -6,10 +6,14 @@ CXXFLAGS = -O3 \
 	   -Werror \
 	   -Wextra \
 	   -Wformat=2 \
+	   -Wformat-security \
 	   -Wno-unused-function \
+	   -Wno-vla \
 	   -Wpointer-arith \
+	   -Wsign-conversion \
 	   -Wstrict-overflow=5 \
 	   -fPIC \
+	   -pedantic \
 	   -std=c++11
 
 all:	clover.cc

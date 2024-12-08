@@ -25,13 +25,9 @@
 ** CLOVER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cmath>
-#include <cstdint>
-#include <cstring>
+#include "clover.h"
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <limits>
 
 auto const pi = std::acos(-1);
 static size_t output_size_in_bytes = 128 / 2;
@@ -64,7 +60,8 @@ int main(int argc, char *argv[])
 
 	if(i < argc && argv[i])
 	  {
-	    auto const value = std::strtol(argv[i], 0, 10);
+	    auto const value = static_cast<size_t>
+	      (std::strtol(argv[i], 0, 10));
 
 	    if(value == 16 ||
 	       value == 32 ||
@@ -86,6 +83,7 @@ int main(int argc, char *argv[])
 
   if(file.is_open())
     {
+      clover c(output_size_in_bytes);
       char H[output_size_in_bytes];
       char PI[output_size_in_bytes];
       char R[output_size_in_bytes];
@@ -97,17 +95,19 @@ int main(int argc, char *argv[])
 		  "141592653589793238462643383279502884197169399375"
 		  "105820974944592307816406286208998628034825342117"
 		  "06798214808651328230664709384460",
-		  std::min(sizeof(PI), static_cast<size_t> (1024 / 2)));
+		  sizeof(PI));
       std::memcpy(H, PI, std::min(sizeof(H), sizeof(PI)));
 
       while(true)
 	{
-	  file.read(buffer, sizeof(buffer));
+	  file.read(buffer, static_cast<std::streamsize> (sizeof(buffer)));
 
 	  auto const gcount = static_cast<size_t> (file.gcount());
 
 	  if(gcount <= 0)
 	    break;
+
+	  c.add(buffer, gcount);
 
 	  if(gcount < sizeof(PI))
 	    std::memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
@@ -143,8 +143,10 @@ int main(int argc, char *argv[])
 		    cosl(b * static_cast<double> (h)) * cosl(b);
 		  auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
 		    cosl(b * static_cast<double> (h)) * sinl(b);
-		  auto const x = std::llround(std::ceil(x0));
-		  auto const y = std::llround(std::ceil(y0));
+		  auto const x = static_cast<uint64_t>
+		    (std::llround(std::ceil(x0)));
+		  auto const y = static_cast<uint64_t>
+		    (std::llround(std::ceil(y0)));
 
 		  a[i] = p[i] = x ^ y;
 		}
@@ -182,6 +184,7 @@ int main(int argc, char *argv[])
 		  << (H[i] & 0xff);
 
       std::cout << std::endl;
+      std::cout << c.output() << std::endl;
     }
   else
     {
