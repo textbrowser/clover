@@ -40,7 +40,8 @@ class clover
  public:
   clover(const size_t output_size_in_bytes):
     m_output_size_in_bytes
-      (std::max(output_size_in_bytes, static_cast<size_t> (64)))
+    (std::max(output_size_in_bytes,
+	      static_cast<decltype(m_output_size_in_bytes)> (64)))
   {
     m_H = new char[m_output_size_in_bytes];
     m_PI = new char[m_output_size_in_bytes];
@@ -71,7 +72,9 @@ class clover
   {
     std::ostringstream s;
 
-    for(size_t i = 0; i < m_output_size_in_bytes; i++)
+    for(decltype(m_output_size_in_bytes) i = 0;
+	i < m_output_size_in_bytes;
+	i++)
       s << std::hex << std::setfill('0') << std::setw(2) << (m_H[i] & 0xff);
 
     return s.str();
@@ -92,7 +95,9 @@ class clover
     if(m_output_size_in_bytes > size)
       std::memcpy(&m_buffer[size], m_PI, m_output_size_in_bytes - size);
 
-    for(size_t i = 0, j = 0, k = 0; i < m_output_size_in_bytes; i++)
+    for(decltype(m_output_size_in_bytes) i = 0, j = 0, k = 0;
+	i < m_output_size_in_bytes;
+	i++)
       {
 	m_a[j] |= static_cast<uint64_t> (m_buffer[i] & 0xff) << 8 * k;
 
@@ -108,9 +113,11 @@ class clover
 	  break;
       }
 
-    for(size_t h = 13; h <= 75; h += 13)
+    for(decltype(m_output_size_in_bytes) h = 13; h <= 75; h += 13)
       {
-	for(size_t i = 0; i < m_output_size_in_bytes / 8; i++)
+	for(decltype(m_output_size_in_bytes) i = 0;
+	    i < m_output_size_in_bytes / 8;
+	    i++)
 	  {
 	    auto const b =
 	      (static_cast<long double> (m_a[i]) /
@@ -125,8 +132,12 @@ class clover
 	    m_a[i] = m_p[i] = x ^ y;
 	  }
 
-	for(size_t i = 0; i < m_output_size_in_bytes; i++)
-	  for(size_t j = 0; j < m_output_size_in_bytes / 8; j++)
+	for(decltype(m_output_size_in_bytes) i = 0;
+	    i < m_output_size_in_bytes;
+	    i++)
+	  for(decltype(m_output_size_in_bytes) j = 0;
+	      j < m_output_size_in_bytes / 8;
+	      j++)
 	    {
 	      m_H[i] ^= static_cast<char> (m_a[j]);
 	      m_H[i] ^= static_cast<char> (m_a[j] << 11);
@@ -135,7 +146,9 @@ class clover
 	    }
       }
 
-    for(size_t i = 0; i < m_output_size_in_bytes / 8; i++)
+    for(decltype(m_output_size_in_bytes) i = 0;
+	i < m_output_size_in_bytes / 8;
+	i++)
       {
 	m_R[i * 8 + 0] = static_cast<char> (m_p[i]);
 	m_R[i * 8 + 1] = static_cast<char> ((m_p[i] >> 8) & 0xff);
@@ -147,7 +160,9 @@ class clover
 	m_R[i * 8 + 7] = static_cast<char> ((m_p[i] >> 56) & 0xff);
       }
 
-    for(size_t i = 0; i < m_output_size_in_bytes; i++)
+    for(decltype(m_output_size_in_bytes) i = 0;
+	i < m_output_size_in_bytes;
+	i++)
       m_H[i] ^= m_R[i];
   }
 
