@@ -35,6 +35,8 @@
 #include <limits>
 #include <sstream>
 
+#define CLOVER_VERSION 20241209
+
 class clover
 {
  public:
