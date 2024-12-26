@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
 {
   if(argc <= 0 || argv == nullptr || argv[1] == nullptr)
     {
-      std::cerr << "clover: [--filename file] "
+      std::cerr << "clover: file "
+		<< "[--filename file] "
 		<< "[--output-size 16, 32, ..., 1024]"
 		<< std::endl;
       return EXIT_FAILURE;
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
 
   if(file.is_open())
     {
-      clover c(output_size_in_bytes);
+      clover clover(output_size_in_bytes);
       char H[output_size_in_bytes];
       char PI[output_size_in_bytes];
       char R[output_size_in_bytes];
@@ -107,7 +108,7 @@ int main(int argc, char *argv[])
 	  if(gcount <= 0)
 	    break;
 
-	  c.add(buffer, gcount);
+	  clover.add(buffer, gcount);
 
 	  if(gcount < sizeof(PI))
 	    std::memcpy(&buffer[gcount], PI, sizeof(PI) - gcount);
@@ -184,7 +185,7 @@ int main(int argc, char *argv[])
 		  << (H[i] & 0xff);
 
       std::cout << std::endl;
-      std::cout << c.output() << std::endl;
+      std::cout << clover.output() << std::endl;
     }
   else
     {

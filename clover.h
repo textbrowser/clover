@@ -35,7 +35,7 @@
 #include <limits>
 #include <sstream>
 
-#define CLOVER_VERSION 20241209
+#define CLOVER_VERSION 20241225
 
 class clover
 {
@@ -43,7 +43,7 @@ class clover
   clover(const size_t output_size_in_bytes):
     m_output_size_in_bytes
     (std::max(output_size_in_bytes,
-	      static_cast<decltype(m_output_size_in_bytes)> (64)))
+	      static_cast<decltype(m_output_size_in_bytes)> (8)))
   {
     m_H = new char[m_output_size_in_bytes];
     m_PI = new char[m_output_size_in_bytes];
@@ -89,9 +89,9 @@ class clover
 
     auto const static pi = std::acos(-1);
 
-    std::memset(m_R, 0, sizeof(m_R) * sizeof(m_R[0]));
-    std::memset(m_a, 0, sizeof(m_a) * sizeof(m_a[0]));
-    std::memset(m_p, 0, sizeof(m_p) * sizeof(m_p[0]));
+    std::memset(m_R, 0, m_output_size_in_bytes * sizeof(*m_R));
+    std::memset(m_a, 0, m_output_size_in_bytes / 8 * sizeof(*m_a));
+    std::memset(m_p, 0, m_output_size_in_bytes / 8 * sizeof(*m_p));
     std::memcpy(m_buffer, data, std::min(m_output_size_in_bytes, size));
 
     if(m_output_size_in_bytes > size)
