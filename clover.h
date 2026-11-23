@@ -127,9 +127,9 @@ class clover
 	      (static_cast<long double> (m_a[i]) /
 	       std::numeric_limits<uint64_t>::max()) * h * pi;
 	    auto const x0 = std::numeric_limits<uint64_t>::max() / 2 *
-	      cosl(b * static_cast<double> (h)) * powl(cosl(b), 3.0);
+	      cosl(b * static_cast<double> (h)) * cosl(b);
 	    auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
-	      cosl(b * static_cast<double> (h)) * powl(sinl(b), 5.0);
+	      cosl(b * static_cast<double> (h)) * sinl(b);
 	    auto const x = static_cast<uint64_t> (std::llround(std::ceil(x0)));
 	    auto const y = static_cast<uint64_t> (std::llround(std::ceil(y0)));
 
@@ -143,8 +143,6 @@ class clover
 	      j < m_output_size_in_bytes / 8;
 	      j++)
 	    {
-	      m_H[i] ^= static_cast<uint8_t> (h);
-	      m_H[i] ^= static_cast<uint8_t> (i);
 	      m_H[i] ^= static_cast<uint8_t> (m_a[j]);
 	      m_H[i] ^= static_cast<uint8_t> (m_a[j] >> 8);
 	      m_H[i] ^= static_cast<uint8_t> (m_a[j] >> 16);
