@@ -84,13 +84,13 @@ int main(int argc, char *argv[])
 
   if(file.is_open())
     {
-      clover clover(output_size_in_bytes);
-      char H[output_size_in_bytes];
-      char PI[output_size_in_bytes];
-      char R[output_size_in_bytes];
       char buffer[output_size_in_bytes];
+      clover clover(output_size_in_bytes);
       uint64_t a[output_size_in_bytes / 8];
       uint64_t p[output_size_in_bytes / 8];
+      uint8_t H[output_size_in_bytes];
+      uint8_t PI[output_size_in_bytes];
+      uint8_t R[output_size_in_bytes];
 
       std::memcpy(PI,
 		  "141592653589793238462643383279502884197169399375"
@@ -155,23 +155,24 @@ int main(int argc, char *argv[])
 	      for(size_t i = 0; i < output_size_in_bytes; i++)
 		for(size_t j = 0; j < output_size_in_bytes / 8; j++)
 		  {
-		    H[i] ^= static_cast<char> (a[j]);
-		    H[i] ^= static_cast<char> (a[j] << 11);
-		    H[i] ^= static_cast<char> (a[j] << 13);
-		    H[i] ^= static_cast<char> (a[j] << 17);
+		    H[i] ^= static_cast<uint8_t> (i);
+		    H[i] ^= static_cast<uint8_t> (a[j]);
+		    H[i] ^= static_cast<uint8_t> (a[j] << 11);
+		    H[i] ^= static_cast<uint8_t> (a[j] << 13);
+		    H[i] ^= static_cast<uint8_t> (a[j] << 17);
 		  }
 	    }
 
 	  for(size_t i = 0; i < output_size_in_bytes / 8; i++)
 	    {
-	      R[i * 8 + 0] = static_cast<char> (p[i]);
-	      R[i * 8 + 1] = static_cast<char> ((p[i] >> 8) & 0xff);
-	      R[i * 8 + 2] = static_cast<char> ((p[i] >> 16) & 0xff);
-	      R[i * 8 + 3] = static_cast<char> ((p[i] >> 24) & 0xff);
-	      R[i * 8 + 4] = static_cast<char> ((p[i] >> 32) & 0xff);
-	      R[i * 8 + 5] = static_cast<char> ((p[i] >> 40) & 0xff);
-	      R[i * 8 + 6] = static_cast<char> ((p[i] >> 48) & 0xff);
-	      R[i * 8 + 7] = static_cast<char> ((p[i] >> 56) & 0xff);
+	      R[i * 8 + 0] = static_cast<uint8_t> (p[i]);
+	      R[i * 8 + 1] = static_cast<uint8_t> ((p[i] >> 8) & 0xff);
+	      R[i * 8 + 2] = static_cast<uint8_t> ((p[i] >> 16) & 0xff);
+	      R[i * 8 + 3] = static_cast<uint8_t> ((p[i] >> 24) & 0xff);
+	      R[i * 8 + 4] = static_cast<uint8_t> ((p[i] >> 32) & 0xff);
+	      R[i * 8 + 5] = static_cast<uint8_t> ((p[i] >> 40) & 0xff);
+	      R[i * 8 + 6] = static_cast<uint8_t> ((p[i] >> 48) & 0xff);
+	      R[i * 8 + 7] = static_cast<uint8_t> ((p[i] >> 56) & 0xff);
 	    }
 
 	  for(size_t i = 0; i < output_size_in_bytes; i++)

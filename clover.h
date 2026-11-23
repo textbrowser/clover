@@ -34,7 +34,7 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
-
+#include<iostream>
 #define CLOVER_VERSION 20241225
 
 class clover
@@ -45,12 +45,14 @@ class clover
     (std::max(output_size_in_bytes,
 	      static_cast<decltype(m_output_size_in_bytes)> (8)))
   {
-    m_H = new char[m_output_size_in_bytes];
-    m_PI = new char[m_output_size_in_bytes];
-    m_R = new char[m_output_size_in_bytes];
+    m_H = new uint8_t[m_output_size_in_bytes];
+    m_PI = new uint8_t[m_output_size_in_bytes];
+    m_R = new uint8_t[m_output_size_in_bytes];
     m_a = new uint64_t[m_output_size_in_bytes / 8];
-    m_buffer = new char[m_output_size_in_bytes];
+    m_buffer = new uint8_t[m_output_size_in_bytes];
     m_p = new uint64_t[m_output_size_in_bytes / 8];
+    std::memset(m_H, 0, m_output_size_in_bytes);
+    std::memset(m_PI, 0, m_output_size_in_bytes);
     std::memcpy
       (m_PI,
        "141592653589793238462643383279502884197169399375"
@@ -141,10 +143,11 @@ class clover
 	      j < m_output_size_in_bytes / 8;
 	      j++)
 	    {
-	      m_H[i] ^= static_cast<char> (m_a[j]);
-	      m_H[i] ^= static_cast<char> (m_a[j] << 11);
-	      m_H[i] ^= static_cast<char> (m_a[j] << 13);
-	      m_H[i] ^= static_cast<char> (m_a[j] << 17);
+	      m_H[i] ^= static_cast<uint8_t> (i);
+	      m_H[i] ^= static_cast<uint8_t> (m_a[j]);
+	      m_H[i] ^= static_cast<uint8_t> (m_a[j] << 11);
+	      m_H[i] ^= static_cast<uint8_t> (m_a[j] << 13);
+	      m_H[i] ^= static_cast<uint8_t> (m_a[j] << 17);
 	    }
       }
 
@@ -152,14 +155,14 @@ class clover
 	i < m_output_size_in_bytes / 8;
 	i++)
       {
-	m_R[i * 8 + 0] = static_cast<char> (m_p[i]);
-	m_R[i * 8 + 1] = static_cast<char> ((m_p[i] >> 8) & 0xff);
-	m_R[i * 8 + 2] = static_cast<char> ((m_p[i] >> 16) & 0xff);
-	m_R[i * 8 + 3] = static_cast<char> ((m_p[i] >> 24) & 0xff);
-	m_R[i * 8 + 4] = static_cast<char> ((m_p[i] >> 32) & 0xff);
-	m_R[i * 8 + 5] = static_cast<char> ((m_p[i] >> 40) & 0xff);
-	m_R[i * 8 + 6] = static_cast<char> ((m_p[i] >> 48) & 0xff);
-	m_R[i * 8 + 7] = static_cast<char> ((m_p[i] >> 56) & 0xff);
+	m_R[i * 8 + 0] = static_cast<uint8_t> (m_p[i]);
+	m_R[i * 8 + 1] = static_cast<uint8_t> ((m_p[i] >> 8) & 0xff);
+	m_R[i * 8 + 2] = static_cast<uint8_t> ((m_p[i] >> 16) & 0xff);
+	m_R[i * 8 + 3] = static_cast<uint8_t> ((m_p[i] >> 24) & 0xff);
+	m_R[i * 8 + 4] = static_cast<uint8_t> ((m_p[i] >> 32) & 0xff);
+	m_R[i * 8 + 5] = static_cast<uint8_t> ((m_p[i] >> 40) & 0xff);
+	m_R[i * 8 + 6] = static_cast<uint8_t> ((m_p[i] >> 48) & 0xff);
+	m_R[i * 8 + 7] = static_cast<uint8_t> ((m_p[i] >> 56) & 0xff);
       }
 
     for(decltype(m_output_size_in_bytes) i = 0;
@@ -169,13 +172,13 @@ class clover
   }
 
  private:
-  char *m_H = nullptr;
-  char *m_PI = nullptr;
-  char *m_R = nullptr;
-  char *m_buffer = nullptr;
   size_t m_output_size_in_bytes = 0;
   uint64_t *m_a = nullptr;
   uint64_t *m_p = nullptr;
+  uint8_t *m_H = nullptr;
+  uint8_t *m_PI = nullptr;
+  uint8_t *m_R = nullptr;
+  uint8_t *m_buffer = nullptr;
 };
 
 #endif
