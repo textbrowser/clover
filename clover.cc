@@ -141,9 +141,9 @@ int main(int argc, char *argv[])
 		    (static_cast<long double> (a[i]) /
 		     std::numeric_limits<uint64_t>::max()) * h * pi;
 		  auto const x0 = std::numeric_limits<uint64_t>::max() / 2 *
-		    cosl(b * static_cast<double> (h)) * cosl(b);
+		    cosl(b * static_cast<double> (h)) * powl(cosl(b), 3.0);
 		  auto const y0 = std::numeric_limits<uint64_t>::max() / 2 *
-		    cosl(b * static_cast<double> (h)) * sinl(b);
+		    cosl(b * static_cast<double> (h)) * powl(sinl(b), 5.0);
 		  auto const x = static_cast<uint64_t>
 		    (std::llround(std::ceil(x0)));
 		  auto const y = static_cast<uint64_t>
@@ -155,11 +155,16 @@ int main(int argc, char *argv[])
 	      for(size_t i = 0; i < output_size_in_bytes; i++)
 		for(size_t j = 0; j < output_size_in_bytes / 8; j++)
 		  {
+		    H[i] ^= static_cast<uint8_t> (h);
 		    H[i] ^= static_cast<uint8_t> (i);
 		    H[i] ^= static_cast<uint8_t> (a[j]);
-		    H[i] ^= static_cast<uint8_t> (a[j] << 11);
-		    H[i] ^= static_cast<uint8_t> (a[j] << 13);
-		    H[i] ^= static_cast<uint8_t> (a[j] << 17);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 8);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 16);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 24);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 32);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 40);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 48);
+		    H[i] ^= static_cast<uint8_t> (a[j] >> 56);
 		  }
 	    }
 
