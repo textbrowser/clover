@@ -35,7 +35,7 @@
 #include <limits>
 #include <sstream>
 #include<iostream>
-#define CLOVER_VERSION 20241225
+#define CLOVER_VERSION 20261123
 
 class clover
 {
