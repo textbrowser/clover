@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     {
       std::cerr << "clover: file "
 		<< "[--filename file] "
-		<< "[--output-size 16, 32, ..., 1024]"
+		<< "[--output-size 16, 32, ..., 1024 characters]"
 		<< std::endl;
       return EXIT_FAILURE;
     }
